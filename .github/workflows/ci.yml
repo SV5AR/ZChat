@@ -5,8 +5,29 @@ on:
   pull_request:
 
 jobs:
+  build-kyber:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone PQClean sources
+        run: git clone --depth 1 https://github.com/PQClean/PQClean.git pqclean
+      - name: Install emsdk
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          pushd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          popd
+      - name: Build Kyber from source
+        shell: bash
+        run: |
+          source ./emsdk/emsdk_env.sh
+          chmod +x build-kyber.sh
+          ./build-kyber.sh
+
   test:
     runs-on: ubuntu-latest
+    needs: build-kyber
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js
@@ -16,7 +37,7 @@ jobs:
       - name: Verify Kyber artifacts
         run: |
           if [ ! -f src/lib/kyber-wasm/kyber-bundled.min.js ] || [ ! -f src/lib/kyber-wasm/kyber.wasm ]; then
-            echo "Kyber artifacts missing in src/lib/kyber-wasm/. Add kyber-bundled.min.js and kyber.wasm or provide a build step.";
+            echo "Kyber artifacts missing in src/lib/kyber-wasm/. Build job should create them.";
             exit 1
           fi
       - name: Install deps

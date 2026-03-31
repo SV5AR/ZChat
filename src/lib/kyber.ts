@@ -14,7 +14,9 @@
 
 let impl: any = null
 let usedNative = false
-const KYBER_DEBUG = true
+// Debug logging disabled by default for production; enable by setting
+// globalThis.__KYBER_DEBUG = true in development/test only.
+const KYBER_DEBUG = Boolean((globalThis as any).__KYBER_DEBUG)
 
 async function loadBundledWasm() {
   try {
@@ -65,9 +67,14 @@ async function loadBundledWasm() {
       function readBytes(ptr, len) {
         return new Uint8Array(Module.HEAPU8.subarray(ptr, ptr + len))
       }
+      function zeroWasm(ptr, len) {
+        try { Module.HEAPU8.fill(0, ptr, ptr + len) } catch (e) { /* best-effort */ }
+      }
       function writeRandom(ptr, len) {
         const tmp = crypto.getRandomValues(new Uint8Array(len))
         Module.HEAPU8.set(tmp, ptr)
+        // zero the temporary random buffer after use
+        tmp.fill(0)
       }
       const api: any = {}
       api.generateKeypair = () => {
@@ -77,11 +84,11 @@ async function loadBundledWasm() {
         const pkPtr = Module._malloc(pkLen)
         const skPtr = Module._malloc(skLen)
         try {
-          // Debug helpers when running under Node/Vitest to surface sizes/pointers
-          try { console.debug && console.debug('kyber.generateKeypair', { pkLen, skLen, pkPtr, skPtr }) } catch (e) {}
           const rc = Module._PQCLEAN_MLKEM768_CLEAN_crypto_kem_keypair(pkPtr, skPtr)
           const pk = readBytes(pkPtr, pkLen)
           const sk = readBytes(skPtr, skLen)
+          // zero the wasm backing memory before free (best-effort)
+          try { zeroWasm(pkPtr, pkLen); zeroWasm(skPtr, skLen) } catch (e) {}
           return { publicKey: pk, secretKey: sk }
         } finally {
           try { Module._free(pkPtr); Module._free(skPtr) } catch (e) { /* ignore */ }
@@ -97,6 +104,8 @@ async function loadBundledWasm() {
         Module._PQCLEAN_MLKEM768_CLEAN_crypto_kem_enc(ctPtr, ssPtr, pkPtr)
         const ct = readBytes(ctPtr, ctLen)
         const ss = readBytes(ssPtr, ssLen)
+        // zero wasm buffers (pk input and ct/ss temporaries) before freeing
+        try { zeroWasm(pkPtr, pk.length); zeroWasm(ctPtr, ctLen); zeroWasm(ssPtr, ssLen) } catch (e) {}
         Module._free(pkPtr); Module._free(ctPtr); Module._free(ssPtr)
         return { sharedSecret: ss, ciphertext: ct }
       }
@@ -109,6 +118,8 @@ async function loadBundledWasm() {
         const ssPtr = Module._malloc(ssLen)
         Module._PQCLEAN_MLKEM768_CLEAN_crypto_kem_dec(ssPtr, ctPtr, skPtr)
         const ss = readBytes(ssPtr, ssLen)
+        // zero wasm buffers before freeing
+        try { zeroWasm(skPtr, sk.length); zeroWasm(ctPtr, ct.length); zeroWasm(ssPtr, ssLen) } catch (e) {}
         Module._free(skPtr); Module._free(ctPtr); Module._free(ssPtr)
         return ss
       }
@@ -141,27 +152,32 @@ export async function ensureImpl() {
 }
 
 export async function generateKeypair() {
-  if (KYBER_DEBUG) try { console.debug('kyber.generateKeypair: called') } catch (e) {}
   const m = await ensureImpl()
-  const res = await m.generateKeypair()
-  if (KYBER_DEBUG) try { console.debug('kyber.generateKeypair: done', { pkLen: res.publicKey?.length, skLen: res.secretKey?.length }) } catch (e) {}
-  return res
+  return await m.generateKeypair()
 }
 
 export async function encapsulate(pk: Uint8Array) {
-  if (KYBER_DEBUG) try { console.debug('kyber.encapsulate: called', { pkLen: pk?.length }) } catch (e) {}
   const m = await ensureImpl()
-  const res = await m.encapsulate(pk)
-  if (KYBER_DEBUG) try { console.debug('kyber.encapsulate: done', { ssLen: res.sharedSecret?.length, ctLen: res.ciphertext?.length }) } catch (e) {}
-  return res
+  return await m.encapsulate(pk)
 }
 
 export async function decapsulate(sk: Uint8Array, ct: Uint8Array) {
-  if (KYBER_DEBUG) try { console.debug('kyber.decapsulate: called', { skLen: sk?.length, ctLen: ct?.length }) } catch (e) {}
   const m = await ensureImpl()
-  const res = await m.decapsulate(sk, ct)
-  if (KYBER_DEBUG) try { console.debug('kyber.decapsulate: done', { ssLen: res?.length }) } catch (e) {}
-  return res
+  return await m.decapsulate(sk, ct)
+}
+
+// Zeroize a JS-held buffer (best-effort). Call this on sensitive Uint8Array
+// values when they are no longer needed.
+export function zeroize(buf?: Uint8Array | ArrayBuffer) {
+  try {
+    if (!buf) return
+    if (buf instanceof ArrayBuffer) {
+      const v = new Uint8Array(buf)
+      v.fill(0)
+      return
+    }
+    buf.fill(0)
+  } catch (e) { /* best-effort */ }
 }
 
 export default { ensureImpl, generateKeypair, encapsulate, decapsulate }

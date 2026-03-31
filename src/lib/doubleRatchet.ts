@@ -29,7 +29,6 @@ export class DoubleRatchet {
   async initializeFromHandshake(rootKey: Uint8Array, theirDhPub: Uint8Array) {
     this.rootKey = rootKey
     this.theirDhPub = theirDhPub
-    try { console.debug && console.debug('DoubleRatchet.initializeFromHandshake', { rootKeyLen: rootKey?.length, theirDhPubLen: theirDhPub?.length }) } catch (e) {}
     // Derive initial chain keys from rootKey via HKDF (use deriveKeyMaterials for convenience)
     const seed = rootKey.length >= 64 ? rootKey.slice(0, 64) : (() => {
       const out = new Uint8Array(64)
@@ -43,7 +42,7 @@ export class DoubleRatchet {
 
   async ratchetStep(theirNewDhPub: Uint8Array) {
     this.theirDhPub = theirNewDhPub
-    try { console.debug && console.debug('DoubleRatchet.ratchetStep', { theirNewDhPubLen: theirNewDhPub?.length }) } catch (e) {}
+    // debug disabled by default in prod; enable via global flag if needed
     // Compute DH between our new DH private and their public
     const shared = x25519.getSharedSecret(this.dhPair.priv, theirNewDhPub) as Uint8Array
     // Use shared to derive a new root and chain keys
@@ -82,13 +81,15 @@ export class DoubleRatchet {
     // pre-advance value immediately after `encrypt()` returns.
     this._pendingNextSendChainKey = nextChainKey
     const iv = crypto.getRandomValues(new Uint8Array(12))
-    try { console.debug && console.debug('DoubleRatchet.encrypt', { plaintextLen: plaintext?.length, iv }) } catch (e) {}
     const keyBytes = messageKey instanceof Uint8Array ? messageKey.slice() : new Uint8Array(messageKey)
     const key = await crypto.subtle.importKey('raw', keyBytes.buffer, 'AES-GCM', false, ['encrypt'])
     const plainBuf = plaintext.buffer instanceof ArrayBuffer ? plaintext.buffer as ArrayBuffer : new Uint8Array(plaintext).buffer
     const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plainBuf)
     const header = { pub: Array.from(this.dhPair.pub), pn: 0, n: this.sendMessageCounter, iv: Array.from(iv) }
     this.sendMessageCounter += 1
+    // zero any JS copies of the message key material (best-effort)
+    try { (keyBytes as Uint8Array).fill(0) } catch (e) {}
+    try { (messageKey as Uint8Array).fill(0) } catch (e) {}
     return { ct: new Uint8Array(ct), header }
   }
 
@@ -100,8 +101,10 @@ export class DoubleRatchet {
     const key = await crypto.subtle.importKey('raw', keyBytes.buffer, 'AES-GCM', false, ['decrypt'])
     const ivArr = header?.iv ? new Uint8Array(header.iv) : new Uint8Array(12)
     const ctBuf = ct.buffer instanceof ArrayBuffer ? ct.buffer as ArrayBuffer : new Uint8Array(ct).buffer
-    try { console.debug && console.debug('DoubleRatchet.decrypt', { header, ctLen: ct?.length }) } catch (e) {}
     const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivArr }, key, ctBuf)
+    // zero temporary JS-held key material (best-effort)
+    try { (keyBytes as Uint8Array).fill(0) } catch (e) {}
+    try { (messageKey as Uint8Array).fill(0) } catch (e) {}
     return new Uint8Array(plain)
   }
 }
