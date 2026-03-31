@@ -68,7 +68,15 @@ async function loadBundledWasm() {
         return new Uint8Array(Module.HEAPU8.subarray(ptr, ptr + len))
       }
       function zeroWasm(ptr, len) {
-        try { Module.HEAPU8.fill(0, ptr, ptr + len) } catch (e) { /* best-effort */ }
+        try {
+          // Prefer calling a C-side zeroizer if available (stronger guarantee
+          // against compiler optimizations). Fall back to zeroing HEAPU8.
+          if (typeof Module._kyber_zero === 'function') {
+            try { Module._kyber_zero(ptr, len) } catch (e) { /* ignore */ }
+            return
+          }
+          Module.HEAPU8.fill(0, ptr, ptr + len)
+        } catch (e) { /* best-effort */ }
       }
       function writeRandom(ptr, len) {
         const tmp = crypto.getRandomValues(new Uint8Array(len))
