@@ -11,9 +11,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "bip39": "^3.0.4",
-    "argon2-wasm": "^0.0.11",
-    "@noble/curves": "^1.10.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "argon2-browser": "^1.4.0"
   },
   "devDependencies": {
     "vite": "^5.0.0"

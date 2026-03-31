@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39'
-import argon2 from 'argon2-wasm'
+import argon2 from 'argon2-browser'
 
 export async function deriveSeedFromMnemonic(mnemonic, opts = { time: 4, mem: 1<<20, parallelism: 4 }) {
   if (!bip39.validateMnemonic(mnemonic)) throw new Error('invalid mnemonic')

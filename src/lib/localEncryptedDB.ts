@@ -1,4 +1,4 @@
-import argon2 from 'argon2-wasm'
+import argon2 from 'argon2-browser'
 
 function b64(buf: Uint8Array){ return btoa(String.fromCharCode(...buf)) }
 function fromB64(s: string){ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)) }
