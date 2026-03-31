@@ -1,0 +1,65 @@
+import { initSupabase, publishEnvelope, subscribeToEnvelopes } from './supabaseClient'
+
+function bufToB64(b: Uint8Array) { return btoa(String.fromCharCode(...b)) }
+function b64ToBuf(s: string) { return new Uint8Array(atob(s).split('').map(c=>c.charCodeAt(0))) }
+
+let sbInited = false
+let appKey: CryptoKey | null = null
+
+export function initMessaging({ supabaseUrl, supabaseKey }:{ supabaseUrl:string, supabaseKey:string }){
+  if(!sbInited) {
+    initSupabase(supabaseUrl, supabaseKey)
+    sbInited = true
+  }
+}
+
+async function ensureAppKey(){
+  if(appKey) return appKey
+  const existing = localStorage.getItem('app_sym_key')
+  if(existing){
+    const keyBytes = b64ToBuf(existing)
+    appKey = await crypto.subtle.importKey('raw', keyBytes.buffer, 'AES-GCM', false, ['encrypt','decrypt'])
+    return appKey
+  }
+  const keyBytes = crypto.getRandomValues(new Uint8Array(32))
+  appKey = await crypto.subtle.importKey('raw', keyBytes.buffer, 'AES-GCM', false, ['encrypt','decrypt'])
+  localStorage.setItem('app_sym_key', bufToB64(keyBytes))
+  // zero local copy
+  keyBytes.fill(0)
+  return appKey
+}
+
+export async function sendMessage(to:string, plaintext:string){
+  const key = await ensureAppKey()
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext))
+  const envelope = {
+    from: 'me',
+    to,
+    ts: new Date().toISOString(),
+    iv: Array.from(iv),
+    body: bufToB64(new Uint8Array(enc))
+  }
+  // publish to Supabase table `envelopes`
+  await publishEnvelope('envelopes', envelope)
+  return envelope
+}
+
+export async function subscribe(onMessage:(env:any)=>void){
+  await ensureAppKey()
+  return subscribeToEnvelopes('envelopes', async (rec:any) => {
+    try {
+      const key = await ensureAppKey()
+      const iv = new Uint8Array(rec.iv || [])
+      const body = b64ToBuf(rec.body)
+      const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, body.buffer)
+      const text = new TextDecoder().decode(plain)
+      onMessage({ from: rec.from, to: rec.to, text, ts: rec.ts })
+    } catch (e) {
+      // ignore decrypt errors for now
+      console.warn('decrypt failed', e)
+    }
+  })
+}
+
+export default { initMessaging, sendMessage, subscribe }
