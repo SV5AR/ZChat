@@ -1,4 +1,5 @@
-import { initSupabase, publishEnvelope, subscribeToEnvelopes } from './supabaseClient'
+import { initSupabase, publishEnvelope, subscribeToEnvelopes, fetchPrekeyById } from './supabaseClient'
+import sessionManager from './sessionManager'
 
 function bufToB64(b: Uint8Array) { return btoa(String.fromCharCode(...b)) }
 function b64ToBuf(s: string) { return new Uint8Array(atob(s).split('').map(c=>c.charCodeAt(0))) }
@@ -30,6 +31,31 @@ async function ensureAppKey(){
 }
 
 export async function sendMessage(to:string, plaintext:string){
+  // prefer per-contact ratchet sessions
+  const sess = sessionManager.getSession(to)
+  if(sess){
+    const r = await sess.ratchet.encrypt(new TextEncoder().encode(plaintext))
+    const envelope = {
+      type: 'msg',
+      from: 'me',
+      to,
+      ts: new Date().toISOString(),
+      header: r.header,
+      ct: bufToB64(r.ct)
+    }
+    await publishEnvelope('envelopes', envelope)
+    return envelope
+  }
+
+  // no session: try to fetch recipient prekey bundle and initiate handshake
+  const bundle = await fetchPrekeyById(to)
+  if(bundle){
+    const handshake = await sessionManager.initiateSession(to, bundle, plaintext)
+    await publishEnvelope('envelopes', handshake)
+    return handshake
+  }
+
+  // fallback to app-wide symmetric envelope
   const key = await ensureAppKey()
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext))
@@ -40,7 +66,6 @@ export async function sendMessage(to:string, plaintext:string){
     iv: Array.from(iv),
     body: bufToB64(new Uint8Array(enc))
   }
-  // publish to Supabase table `envelopes`
   await publishEnvelope('envelopes', envelope)
   return envelope
 }
@@ -49,9 +74,24 @@ export async function subscribe(onMessage:(env:any)=>void){
   await ensureAppKey()
   return subscribeToEnvelopes('envelopes', async (rec:any) => {
     try {
+      if(rec.type === 'handshake'){
+        const plaintext = await sessionManager.handleIncomingHandshake(rec)
+        onMessage({ from: rec.from, to: rec.to, text: plaintext, ts: rec.ts, handshake: true })
+        return
+      }
+      if(rec.type === 'msg'){
+        const sess = sessionManager.getSession(rec.from)
+        if(sess){
+          const ct = b64ToBuf(rec.ct)
+          const plain = await sess.ratchet.decrypt(rec.header, ct)
+          onMessage({ from: rec.from, to: rec.to, text: new TextDecoder().decode(plain), ts: rec.ts })
+          return
+        }
+      }
+      // fallback symmetric decrypt
       const key = await ensureAppKey()
       const iv = new Uint8Array(rec.iv || [])
-      const body = b64ToBuf(rec.body)
+      const body = b64ToBuf(rec.body || '')
       const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, body.buffer)
       const text = new TextDecoder().decode(plain)
       onMessage({ from: rec.from, to: rec.to, text, ts: rec.ts })

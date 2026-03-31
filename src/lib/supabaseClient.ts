@@ -26,3 +26,10 @@ export async function subscribeToEnvelopes(table:string, onRecord:(rec:any)=>voi
   channel.subscribe()
   return () => channel.unsubscribe()
 }
+
+export async function fetchPrekeyById(id: string) {
+  const sb = getSupabase()
+  const res = await sb.from('prekeys').select('*').eq('id', id).limit(1)
+  if (res && (res as any).data && (res as any).data.length) return (res as any).data[0]
+  return null
+}
