@@ -1,25 +1,46 @@
 name: CI
+
 on:
   push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
 
 jobs:
-  lint-and-deploy:
+  build-kyber:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node
+      - name: Clone PQClean sources
+        run: git clone --depth 1 https://github.com/PQClean/PQClean.git pqclean
+      - name: Install emsdk
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          pushd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          popd
+      - name: Build Kyber from source
+        shell: bash
+        run: |
+          source ./emsdk/emsdk_env.sh
+          chmod +x build-kyber.sh
+          ./build-kyber.sh
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build-kyber
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Install Test Dependencies
+          node-version: 18
+      - name: Verify Kyber artifacts
         run: |
-          npm ci
-      - name: Run integration tests
-        env:
-          CONSUME_PREKEY_URL: ${{ secrets.CONSUME_PREKEY_URL }}
-          TEST_TARGET_USER: ${{ secrets.TEST_TARGET_USER }}
-        run: |
-          node tests/integration/prekey_consume_race.test.js
+          if [ ! -f src/lib/kyber-wasm/kyber-bundled.min.js ] || [ ! -f src/lib/kyber-wasm/kyber.wasm ]; then
+            echo "Kyber artifacts missing in src/lib/kyber-wasm/. Build job should create them.";
+            exit 1
+          fi
+      - name: Install deps
+        run: npm ci
+      - name: Run tests
+        run: npx vitest run --reporter verbose
