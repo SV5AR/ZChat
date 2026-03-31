@@ -1,0 +1,33 @@
+name: Rotate Internal HMAC Key
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 0' # weekly rotate on Sunday 04:00 UTC
+
+jobs:
+  approval:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Manual approval
+        run: |
+          echo "Awaiting environment approval for production rotation"
+
+  rotate:
+    needs: approval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Vault CLI
+        run: |
+          curl -sLo vault.zip https://releases.hashicorp.com/vault/1.14.4/vault_1.14.4_linux_amd64.zip && unzip vault.zip && sudo mv vault /usr/local/bin/
+      - name: Rotate and store
+        env:
+          SUPABASE_PROJECT: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ADMIN_KEY: ${{ secrets.SUPABASE_ADMIN_KEY }}
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+        run: |
+          chmod +x infra/vault/deploy_rotate.sh
+          ./infra/vault/deploy_rotate.sh

@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install Test Dependencies
+        run: |
+          npm ci
+      - name: Run integration tests
+        env:
+          CONSUME_PREKEY_URL: ${{ secrets.CONSUME_PREKEY_URL }}
+          TEST_TARGET_USER: ${{ secrets.TEST_TARGET_USER }}
+        run: |
+          node tests/integration/prekey_consume_race.test.js

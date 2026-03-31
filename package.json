@@ -1,0 +1,12 @@
+{
+  "name": "zchat-backend-tests",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test:prekey-race": "node tests/integration/prekey_consume_race.test.js",
+    "test:rls": "node tests/integration/rls.test.mjs"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0"
+  }
+}

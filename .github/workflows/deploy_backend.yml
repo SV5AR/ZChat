@@ -1,0 +1,53 @@
+name: Deploy Backend
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps for tests
+        run: |
+          npm ci || true
+      - name: Run integration tests
+        env:
+          CONSUME_PREKEY_URL: ${{ secrets.CONSUME_PREKEY_URL }}
+          TEST_TARGET_USER: ${{ secrets.TEST_TARGET_USER }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          TEST_USER_ID: ${{ secrets.TEST_USER_ID }}
+          TEST_CONV_ID: ${{ secrets.TEST_CONV_ID }}
+        run: |
+          if [ -f tests/integration/prekey_consume_race.test.js ]; then node tests/integration/prekey_consume_race.test.js; fi
+          if [ -f tests/integration/rls.test.mjs ]; then node tests/integration/rls.test.mjs; fi
+          if [ -f tests/integration/jwt_revocation.test.mjs ]; then node tests/integration/jwt_revocation.test.mjs; fi
+          if [ -f tests/integration/rls_read.test.mjs ]; then node tests/integration/rls_read.test.mjs; fi
+          if [ -f tests/integration/friend_flow.test.mjs ]; then node tests/integration/friend_flow.test.mjs; fi
+          if [ -f tests/integration/shred.test.mjs ]; then node tests/integration/shred.test.mjs; fi
+      - name: Setup Supabase CLI
+        uses: supabase/setup@v1
+        with:
+          supabase-version: 'latest'
+      - name: Authenticate Supabase CLI
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+      - name: Link project
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+      - name: Push DB migrations
+        run: |
+          supabase db push --linked --include-all --yes
+      - name: Deploy Functions
+        run: |
+          # Deploy all functions in the functions directory
+          for d in supabase/functions/*; do
+            if [ -d "$d" ]; then name=$(basename "$d"); supabase functions deploy "$name" --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --no-verify-jwt || true; fi
+          done
