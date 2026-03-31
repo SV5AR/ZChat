@@ -5,7 +5,7 @@
  * skipped message handling, header packing) when ready.
  */
 
-import { x25519 } from '@noble/curves/ed25519'
+import x25519 from './x25519_shim'
 import { deriveKeyMaterials } from './crypto'
 
 type KeyPair = { priv: Uint8Array; pub: Uint8Array }

@@ -7,6 +7,7 @@
     "test:rls": "node tests/integration/rls.test.mjs"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.0"
+    "jsonwebtoken": "^9.0.0",
+    "tweetnacl": "^1.0.3"
   }
 }

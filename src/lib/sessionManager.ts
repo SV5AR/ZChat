@@ -1,4 +1,4 @@
-import { x25519 } from "@noble/curves/ed25519";
+import x25519 from './x25519_shim';
 import kyber from "./kyber";
 import DoubleRatchet from "./doubleRatchet";
 import { initSupabase, publishEnvelope } from "./supabaseClient";
