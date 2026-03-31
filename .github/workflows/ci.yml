@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Verify Kyber artifacts
+        run: |
+          if [ ! -f src/lib/kyber-wasm/kyber-bundled.min.js ] || [ ! -f src/lib/kyber-wasm/kyber.wasm ]; then
+            echo "Kyber artifacts missing in src/lib/kyber-wasm/. Add kyber-bundled.min.js and kyber.wasm or provide a build step.";
+            exit 1
+          fi
+      - name: Install deps
+        run: npm ci
+      - name: Run tests
+        run: npx vitest run --reporter verbose
