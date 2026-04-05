@@ -1,0 +1,82 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+*.local
+
+# Secrets / credentials / keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+service-account*.json
+credentials*.json
+
+# Supabase local artifacts
+.supabase/
+supabase/.temp/
+supabase/.branches/
+supabase/config.local.toml
+
+# Local planning/spec docs not meant for repo publishing
+.ai/
+
+# Extra sensitive exports and dumps
+*.bak
+*.backup
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+*.rdb
+*.kdbx
+*.pkcs8
+*.csr
+*.ovpn
+*.mobileconfig
+
+# Caches and temp files
+.cache/
+.eslintcache
+.stylelintcache
+*.tmp
+*.temp
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

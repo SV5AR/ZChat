@@ -1,0 +1,10 @@
+BEGIN;
+
+DROP TABLE IF EXISTS public.message_events CASCADE;
+DROP TABLE IF EXISTS public.chat_visibility CASCADE;
+DROP TABLE IF EXISTS public.blocks CASCADE;
+DROP TABLE IF EXISTS public.opk_pool CASCADE;
+DROP TABLE IF EXISTS public.chats CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+
+COMMIT;

@@ -1,0 +1,2292 @@
+@import "tailwindcss";
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Prevent iOS/Android auto-zoom on input focus ──────────────────────────
+   iOS Safari zooms in when an input's font-size is less than 16px.
+   Setting font-size: 16px globally on inputs prevents this.
+   touch-action: manipulation disables double-tap zoom on buttons.       */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+button {
+  touch-action: manipulation;
+}
+/* Viewport meta is set in index.html — this handles the CSS side */
+@media screen and (max-width: 768px) {
+  input,
+  textarea {
+    font-size: 16px !important;
+    /* Prevent zoom on focus */
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.22);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.35);
+}
+
+/* Modern scrollbar for tab containers */
+[style*="scrollbar-width: thin"]::-webkit-scrollbar {
+  height: 6px;
+}
+[style*="scrollbar-width: thin"]::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+[style*="scrollbar-width: thin"]::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+[style*="scrollbar-width: thin"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.45);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ── Connection dot animations ── */
+/* Connected: breathe in 1s, breathe out 1s = 2s total */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.78);
+  }
+}
+.dot-connected {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+/* Disconnected (Reconnecting): radar pulse animation */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+@keyframes radar-core {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+.radar-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.radar-pulse {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid;
+  border-color: inherit;
+  animation: radar-pulse 1s ease-out infinite;
+}
+.radar-pulse:nth-child(2) {
+  animation-delay: 0.33s;
+}
+.radar-pulse:nth-child(3) {
+  animation-delay: 0.66s;
+}
+.radar-core {
+  animation: radar-core 1s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* ── Badge pop ── */
+@keyframes badge-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.badge-pop {
+  animation: badge-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Modal / panel enter ── */
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.modal-enter {
+  animation: modal-enter var(--app-motion-slow, 320ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes modal-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modal-card-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+}
+
+.modal-exit {
+  animation: modal-exit var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) both;
+}
+
+.modal-card-enter {
+  animation: modal-card-enter var(--app-motion-slow, 320ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.modal-card-exit {
+  animation: modal-card-exit var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) both;
+}
+
+/* ── Tab content slide ── */
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.tab-content {
+  transform: none;
+  animation: tab-in var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.tab-content-slide {
+  transform: none;
+  animation: tab-in var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+/* ── Smooth position transition for popup message ── */
+@keyframes popupMove {
+  from {
+    transform: translate(var(--from-x), var(--from-y));
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+/* Simple fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Float in (popups) ── */
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Popup direction variants ── */
+@keyframes floatInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes floatInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Slide up (bottom sheets) ── */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.slide-up {
+  transform: none;
+  animation: slideUp var(--app-motion-slow, 320ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes mobileAuthInRight {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes mobileAuthOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+}
+
+.mobile-auth-panel {
+  will-change: transform, opacity;
+}
+
+.mobile-auth-in-right {
+  animation: mobileAuthInRight var(--app-motion-slow, 320ms) var(--app-ease-standard, ease) both;
+}
+
+.mobile-auth-out-left {
+  animation: mobileAuthOutLeft var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) both;
+}
+
+/* ── Message / card appear ── */
+@keyframes msgAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Item disappear ── */
+@keyframes itemFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.94);
+  }
+}
+.item-appear {
+  animation: msgAppear var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+.item-exit {
+  animation: itemFadeOut var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) forwards;
+}
+
+/* ── Smooth theme / color transitions ── */
+*:not([class*="dot-"]):not([class*="badge"]):not([class*="modal"]):not(
+    [class*="tab-"]
+  ):not([class*="slide"]):not([class*="item-"]) {
+  transition:
+    background-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    border-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    color var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    box-shadow var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    opacity var(--app-motion-fast, 140ms) var(--app-ease-standard, ease);
+}
+
+button,
+input,
+textarea {
+  transition:
+    background-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    border-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    box-shadow var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    color var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    filter var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+button:hover:not(:disabled) {
+  box-shadow: var(--app-control-shadow-hover, 0 6px 14px rgba(0, 0, 0, 0.14));
+  filter: var(--app-hover-filter, brightness(1.06));
+}
+
+button:active:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+button:hover:not(:disabled),
+[role="button"]:hover:not(:disabled),
+select:hover:not(:disabled) {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+button:active:not(:disabled),
+[role="button"]:active:not(:disabled),
+select:active:not(:disabled) {
+  background-color: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+/* Material-specific interaction tuning */
+:root {
+  --app-material: solid;
+  --app-panel-backdrop: none;
+  --app-button-lift: translateY(-0.5px);
+  --app-control-shadow: none;
+  --app-control-shadow-hover: 0 6px 14px rgba(0, 0, 0, 0.14);
+  --app-hover-scale: 1.012;
+  --app-active-scale: 0.992;
+  --app-hover-filter: brightness(1.06);
+  --app-radius-xs: 8px;
+  --app-radius-sm: 10px;
+  --app-radius-md: 12px;
+  --app-radius-lg: 16px;
+  --app-radius-xl: 20px;
+  --app-focus-radius: 12px;
+  --app-glow-radius: 12px;
+  --app-motion-fast: 140ms;
+  --app-motion-normal: 220ms;
+  --app-motion-slow: 320ms;
+  --app-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --app-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --app-hover-translate: -0.5px;
+  --app-hover-scale: 1.008;
+  --app-press-scale: 0.994;
+}
+
+button,
+input,
+textarea,
+select {
+  border-radius: var(--app-radius-sm) !important;
+  box-shadow: var(--app-control-shadow, none);
+}
+
+.shape-radius-xs {
+  border-radius: var(--app-radius-xs) !important;
+}
+
+.shape-radius-sm {
+  border-radius: var(--app-radius-sm) !important;
+}
+
+.shape-radius-md {
+  border-radius: var(--app-radius-md) !important;
+}
+
+.shape-radius-lg {
+  border-radius: var(--app-radius-lg) !important;
+}
+
+.shape-radius-xl {
+  border-radius: var(--app-radius-xl) !important;
+}
+
+button[aria-pressed="true"] {
+  background-color: color-mix(in srgb, var(--app-focus-color, #2563eb) 14%, transparent) !important;
+  border-color: color-mix(in srgb, var(--app-focus-color, #2563eb) 35%, transparent) !important;
+}
+
+input,
+textarea,
+select {
+  transition:
+    border-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    box-shadow var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    background-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    filter var(--app-motion-fast, 140ms) var(--app-ease-standard, ease) !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: color-mix(in srgb, var(--app-focus-color, #2563eb) 42%, transparent);
+}
+
+button svg,
+button img,
+[role="button"] svg,
+[role="button"] img {
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+svg {
+  overflow: visible;
+}
+
+[data-layout="messenger"] [style*="font-size: 10"] {
+  font-size: 11px !important;
+}
+
+[data-layout="messenger"] [style*="padding: 8px 12px"],
+[data-layout="messenger"] [style*="padding: 10px 12px"] {
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+}
+
+[data-layout="telegram"] [style*="font-size: 10"] {
+  letter-spacing: 0.18px;
+}
+
+[data-layout="sidebar"] [style*="font-size: 11"],
+[data-layout="sidebar"] [style*="font-size: 10"] {
+  letter-spacing: 0.22px;
+}
+
+[data-layout="telegram"] .modal-enter,
+[data-layout="sidebar"] .modal-enter {
+  animation: none !important;
+}
+
+.section-fade {
+  animation: sectionFadeIn var(--app-motion-normal, 220ms) var(--app-ease-standard, ease) both;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    filter: saturate(0.96);
+  }
+  to {
+    opacity: 1;
+    filter: saturate(1);
+  }
+}
+
+@keyframes pulseConnected {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.82;
+  }
+}
+
+@keyframes pulseDisconnected {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(0.93);
+    opacity: 0.58;
+  }
+}
+
+[style*="border-radius: 28"],
+[style*="border-radius: 20"],
+[style*="border-radius: 18"] {
+  backdrop-filter: var(--app-panel-backdrop, none);
+  -webkit-backdrop-filter: var(--app-panel-backdrop, none);
+}
+
+[data-material="glass"] button,
+[data-material="glass"] input,
+[data-material="glass"] textarea,
+[data-material="glass"] select,
+[data-material="glass"] [role="button"] {
+  backdrop-filter: blur(12px) saturate(145%);
+  -webkit-backdrop-filter: blur(12px) saturate(145%);
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+[data-material="glass"] [style*="background: rgba"],
+[data-material="glass"] [style*="background: theme.surface"],
+[data-material="glass"] [style*="background: theme.surface2"] {
+  background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 42%),
+    linear-gradient(215deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 50%);
+}
+
+[data-material="glass"][data-theme="oceanic"] [style*="background: rgba"],
+[data-material="glass"][data-theme="oceanic"] button,
+[data-material="glass"][data-theme="oceanic"] input,
+[data-material="glass"][data-theme="oceanic"] textarea {
+  background-image:
+    linear-gradient(140deg, rgba(46, 196, 255, 0.16), rgba(46, 196, 255, 0.03) 45%),
+    linear-gradient(225deg, rgba(172, 233, 255, 0.16), rgba(172, 233, 255, 0) 55%);
+}
+
+[data-material="glass"][data-theme="aureate"] [style*="background: rgba"],
+[data-material="glass"][data-theme="aureate"] button,
+[data-material="glass"][data-theme="aureate"] input,
+[data-material="glass"][data-theme="aureate"] textarea {
+  background-image:
+    linear-gradient(140deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.04) 44%),
+    linear-gradient(220deg, rgba(255, 228, 150, 0.18), rgba(255, 228, 150, 0) 58%);
+}
+
+[data-material="glass"][data-theme="emerald"] [style*="background: rgba"],
+[data-material="glass"][data-theme="emerald"] button,
+[data-material="glass"][data-theme="emerald"] input,
+[data-material="glass"][data-theme="emerald"] textarea {
+  background-image:
+    linear-gradient(140deg, rgba(61, 220, 151, 0.18), rgba(61, 220, 151, 0.04) 44%),
+    linear-gradient(225deg, rgba(173, 255, 216, 0.14), rgba(173, 255, 216, 0) 58%);
+}
+
+[data-material="glass"] [style*="position: fixed"],
+[data-material="glass"] [style*="position: absolute"] {
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+}
+
+[data-material="glass"] body {
+  background-image:
+    radial-gradient(circle at 10% 8%, color-mix(in srgb, var(--app-primary-glow, rgba(37, 99, 235, 0.36)) 45%, transparent) 0%, transparent 44%),
+    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--app-primary-glow, rgba(37, 99, 235, 0.32)) 38%, transparent) 0%, transparent 40%),
+    linear-gradient(145deg, color-mix(in srgb, var(--app-surface, #101827) 78%, rgba(255, 255, 255, 0.06)), color-mix(in srgb, var(--app-surface-2, #0f172a) 88%, rgba(255, 255, 255, 0.02)));
+}
+
+[data-material="glass"] {
+  --app-motion-fast: 170ms;
+  --app-motion-normal: 260ms;
+  --app-motion-slow: 360ms;
+  --app-ease-standard: cubic-bezier(0.2, 0.78, 0.18, 1);
+  --app-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --app-hover-translate: -1.2px;
+  --app-hover-scale: 1.01;
+  --app-press-scale: 0.996;
+}
+
+[data-layout="telegram"][data-material="glass"] {
+  --app-motion-normal: 220ms;
+  --app-motion-slow: 320ms;
+}
+
+[data-material="glass"] button[aria-pressed="true"],
+[data-material="glass"] [role="tab"][aria-selected="true"] {
+  background: color-mix(in srgb, var(--app-focus-color, #2563eb) 20%, rgba(255, 255, 255, 0.06)) !important;
+  border-color: color-mix(in srgb, var(--app-focus-color, #2563eb) 56%, rgba(255, 255, 255, 0.22)) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--app-focus-color, #2563eb) 38%, transparent) inset,
+    0 0 20px color-mix(in srgb, var(--app-primary-glow, rgba(37, 99, 235, 0.35)) 58%, transparent) !important;
+}
+
+[data-material="glass"] .app-menu {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 48%),
+    color-mix(in srgb, var(--app-surface-2, #0f172a) 85%, rgba(255, 255, 255, 0.15));
+  border-color: color-mix(in srgb, var(--app-border, #64748b) 55%, rgba(255, 255, 255, 0.4)) !important;
+}
+
+[data-material="glass"] button:hover:not(:disabled) {
+  filter: saturate(1.08) brightness(1.02);
+}
+
+/* ── Material-Specific Hover Effects ──────────────────────────────────────── */
+
+/* Glass: Refractive-Gleam (Light & Clarity) - Slow transitions ~300ms */
+[data-material="glass"] button:hover:not(:disabled),
+[data-material="glass"] [role="button"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06)) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.1),
+    0 0 12px rgba(255,255,255,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  filter: saturate(1.1) brightness(1.04) !important;
+  transition: all 0.3s cubic-bezier(0.2, 0.78, 0.18, 1) !important;
+}
+
+[data-material="glass"] button:active:not(:disabled),
+[data-material="glass"] [role="button"]:active:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08)) !important;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  filter: brightness(1.02) !important;
+  transition: all 0.15s ease !important;
+}
+
+/* M3: Surface-Level-1 (State Layers) - Snappy transitions ~150-200ms */
+[data-material="m3"] button:hover:not(:disabled),
+[data-material="m3"] [role="button"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--m3-primary, #6750a4) 8%, transparent) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08) !important;
+  filter: none !important;
+  transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="m3"] button:active:not(:disabled),
+[data-material="m3"] [role="button"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--m3-primary, #6750a4) 12%, transparent) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Solid: Action-Scale (Scale & Contrast) - Snappy transitions ~150-200ms */
+[data-material="solid"] button:hover:not(:disabled),
+[data-material="solid"] [role="button"]:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 10%, transparent) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.05) !important;
+  filter: brightness(1.08) !important;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="solid"] button:active:not(:disabled),
+[data-material="solid"] [role="button"]:active:not(:disabled) {
+  background: color-mix(in srgb, currentColor 16%, transparent) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+  filter: brightness(0.96) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Neumorphism: Tension-Rise (Elevation) - Slow transitions ~300ms */
+[data-material="neumorphism"] button:hover:not(:disabled),
+[data-material="neumorphism"] [role="button"]:hover:not(:disabled) {
+  background: linear-gradient(145deg, var(--app-surface, #121826), var(--app-surface2, #0f172a)) !important;
+  box-shadow:
+    inset 1px 1px 3px rgba(255,255,255,0.18),
+    inset -1px -1px 3px rgba(0,0,0,0.2),
+    4px 4px 10px rgba(0,0,0,0.25),
+    -4px -4px 10px rgba(255,255,255,0.06) !important;
+  filter: brightness(1.04) !important;
+  transition: all 0.3s cubic-bezier(0.16, 0.92, 0.2, 1) !important;
+}
+
+[data-material="neumorphism"] button:active:not(:disabled),
+[data-material="neumorphism"] [role="button"]:active:not(:disabled) {
+  background: linear-gradient(145deg, var(--app-surface2, #0f172a), var(--app-surface, #121826)) !important;
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.3),
+    inset -3px -3px 6px rgba(255,255,255,0.05) !important;
+  filter: brightness(0.98) !important;
+  transition: all 0.15s ease !important;
+}
+
+/* Apple HIG: Fluid-Press (Organic Motion) - Medium transitions ~200ms */
+[data-material="apple"] button,
+[data-material="apple"] [role="button"] {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+[data-material="apple"] button:hover:not(:disabled),
+[data-material="apple"] [role="button"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-focus-color, #007AFF) 10%, transparent) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08) !important;
+  transform: scale(0.98) !important;
+  filter: brightness(1.02) saturate(1.05) !important;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+[data-material="apple"] button:active:not(:disabled),
+[data-material="apple"] [role="button"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--app-focus-color, #007AFF) 16%, transparent) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  transform: scale(0.96) !important;
+  filter: brightness(0.98) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* ── Material-Specific Checkbox & Icon Styles ───────────────────────────── */
+
+/* Glass: Glint-Check & Vivid-Blur */
+[data-material="glass"] input[type="checkbox"],
+[data-material="glass"] [role="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+[data-material="glass"] input[type="checkbox"]:checked,
+[data-material="glass"] [role="checkbox"][aria-checked="true"] {
+  background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 0 12px rgba(255,255,255,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 0 0 1px rgba(255,255,255,0.1);
+}
+
+[data-material="glass"] input[type="checkbox"]:checked::after,
+[data-material="glass"] [role="checkbox"][aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--app-focus-color, #2563eb);
+  font-size: 13px;
+  font-weight: 800;
+  text-shadow: 0 0 8px var(--app-primary-glow, rgba(37, 99, 235, 0.5));
+}
+
+[data-material="glass"] svg,
+[data-material="glass"] .icon {
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15)) saturate(1.2);
+}
+
+/* M3: Primary-Select & State-Layer */
+[data-material="m3"] input[type="checkbox"],
+[data-material="m3"] [role="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--m3-outline, rgba(120, 120, 140, 0.7));
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+[data-material="m3"] input[type="checkbox"]:checked,
+[data-material="m3"] [role="checkbox"][aria-checked="true"] {
+  background: var(--m3-primary, #6750a4);
+  border-color: var(--m3-primary, #6750a4);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+[data-material="m3"] input[type="checkbox"]:checked::after,
+[data-material="m3"] [role="checkbox"][aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--m3-on-primary, #ffffff);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+[data-material="m3"] svg,
+[data-material="m3"] .icon {
+  opacity: 0.92;
+}
+
+/* Solid: Bold-Mark & Filled-Glyph */
+[data-material="solid"] input[type="checkbox"],
+[data-material="solid"] [role="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--app-border, #64748b);
+  background: var(--app-surface2, #1f2937);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+[data-material="solid"] input[type="checkbox"]:checked,
+[data-material="solid"] [role="checkbox"][aria-checked="true"] {
+  background: var(--app-focus-color, #2563eb);
+  border-color: var(--app-focus-color, #2563eb);
+  box-shadow: 0 0 0 1px var(--app-focus-color, #2563eb);
+}
+
+[data-material="solid"] input[type="checkbox"]:checked::after,
+[data-material="solid"] [role="checkbox"][aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--app-focus-text, #ffffff);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+[data-material="solid"] svg,
+[data-material="solid"] .icon {
+  filter: none;
+}
+
+/* Neumorphism: Inset-Box & Shadow-Pop */
+[data-material="neumorphism"] input[type="checkbox"],
+[data-material="neumorphism"] [role="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: none;
+  background: linear-gradient(145deg, var(--app-surface, #121826), var(--app-surface2, #0f172a));
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.25),
+    inset -2px -2px 4px rgba(255,255,255,0.08);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+[data-material="neumorphism"] input[type="checkbox"]:checked,
+[data-material="neumorphism"] [role="checkbox"][aria-checked="true"] {
+  background: linear-gradient(145deg, var(--app-surface2, #0f172a), var(--app-surface, #121826));
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.3),
+    inset -3px -3px 6px rgba(255,255,255,0.06),
+    0 0 0 1px rgba(255,255,255,0.05);
+}
+
+[data-material="neumorphism"] input[type="checkbox"]:checked::after,
+[data-material="neumorphism"] [role="checkbox"][aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--app-focus-color, #2563eb);
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 0 0 8px var(--app-primary-glow, rgba(37, 99, 235, 0.4));
+}
+
+[data-material="neumorphism"] svg,
+[data-material="neumorphism"] .icon {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Apple HIG: Precision-Toggle & Layered-Glyph */
+[data-material="apple"] input[type="checkbox"],
+[data-material="apple"] [role="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--app-border, rgba(120, 120, 140, 0.6));
+  background: var(--app-surface2, rgba(120, 120, 140, 0.15));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+[data-material="apple"] input[type="checkbox"]:hover,
+[data-material="apple"] [role="checkbox"]:hover {
+  border-color: var(--app-focus-color, #007AFF);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+[data-material="apple"] input[type="checkbox"]:checked,
+[data-material="apple"] [role="checkbox"][aria-checked="true"] {
+  background: var(--app-focus-color, #007AFF);
+  border-color: var(--app-focus-color, #007AFF);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+[data-material="apple"] input[type="checkbox"]:checked::after,
+[data-material="apple"] [role="checkbox"][aria-checked="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  animation: appleCheckIn 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@keyframes appleCheckIn {
+  from {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+[data-material="apple"] svg,
+[data-material="apple"] .icon {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  opacity: 0.95;
+}
+
+[data-material="apple"] button,
+[data-material="apple"] input,
+[data-material="apple"] textarea {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+[data-material="apple"] button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+}
+
+[data-material="apple"] body {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-surface, #F5F5F7) 95%, #ffffff 5%), color-mix(in srgb, var(--app-surface-2, #E5E5EA) 90%, #ffffff 10%));
+}
+
+[data-material="apple"] {
+  --app-motion-fast: 180ms;
+  --app-motion-normal: 220ms;
+  --app-motion-slow: 300ms;
+  --app-ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --app-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --app-hover-translate: -0.5px;
+  --app-hover-scale: 0.98;
+  --app-press-scale: 0.96;
+}
+
+[data-material="neumorphism"] button,
+[data-material="neumorphism"] input,
+[data-material="neumorphism"] textarea {
+  box-shadow:
+    inset 1px 1px 2px rgba(255, 255, 255, 0.22),
+    inset -2px -2px 3px rgba(0, 0, 0, 0.16);
+}
+
+[data-material="neumorphism"] button:hover:not(:disabled) {
+  box-shadow:
+    inset 2px 2px 5px rgba(255, 255, 255, 0.18),
+    inset -5px -5px 9px rgba(0, 0, 0, 0.22);
+}
+
+[data-material="neumorphism"] body {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--app-surface, #121826) 90%, #ffffff 10%), color-mix(in srgb, var(--app-surface-2, #0f172a) 88%, #000000 12%));
+}
+
+[data-material="neumorphism"] {
+  --app-motion-fast: 150ms;
+  --app-motion-normal: 240ms;
+  --app-motion-slow: 340ms;
+  --app-ease-standard: cubic-bezier(0.16, 0.92, 0.2, 1);
+  --app-ease-emphasized: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --app-hover-translate: -0.2px;
+  --app-hover-scale: 1.004;
+  --app-press-scale: 0.992;
+}
+
+[data-layout="modal"][data-material="neumorphism"] {
+  --app-motion-normal: 250ms;
+  --app-motion-slow: 360ms;
+}
+
+[data-material="neumorphism"] button[aria-pressed="true"],
+[data-material="neumorphism"] [role="tab"][aria-selected="true"] {
+  background: color-mix(in srgb, var(--app-surface-2, #1f2937) 88%, var(--app-focus-color, #2563eb) 12%) !important;
+  border-color: color-mix(in srgb, var(--app-border, #64748b) 72%, var(--app-focus-color, #2563eb) 28%) !important;
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.24),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-material="neumorphism"] .app-menu {
+  background: color-mix(in srgb, var(--app-surface, #111827) 92%, #ffffff 8%);
+  border-color: color-mix(in srgb, var(--app-border, #64748b) 75%, transparent) !important;
+  box-shadow:
+    10px 10px 18px rgba(0, 0, 0, 0.24),
+    -8px -8px 16px rgba(255, 255, 255, 0.08),
+    inset 1px 1px 3px rgba(255, 255, 255, 0.08),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-material="m3"] {
+  --m3-primary: var(--app-focus-color, #6750a4);
+  --m3-on-primary: var(--app-focus-text, #ffffff);
+  --m3-outline: color-mix(in srgb, var(--m3-primary) 26%, rgba(120, 120, 140, 0.7));
+  --m3-outline-strong: color-mix(in srgb, var(--m3-primary) 52%, rgba(120, 120, 140, 0.8));
+  --m3-surface-low: color-mix(in srgb, #ffffff 5%, transparent);
+  --m3-surface-mid: color-mix(in srgb, #ffffff 9%, transparent);
+  --m3-surface-high: color-mix(in srgb, #ffffff 14%, transparent);
+  --m3-state-hover: color-mix(in srgb, var(--m3-primary) 9%, transparent);
+  --m3-state-press: color-mix(in srgb, var(--m3-primary) 14%, transparent);
+  --app-motion-fast: 120ms;
+  --app-motion-normal: 190ms;
+  --app-motion-slow: 270ms;
+  --app-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --app-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --app-hover-translate: -0.4px;
+  --app-hover-scale: 1.006;
+  --app-press-scale: 0.992;
+}
+
+[data-layout="telegram"][data-material="m3"] {
+  --app-motion-fast: 110ms;
+  --app-motion-normal: 170ms;
+  --app-motion-slow: 240ms;
+}
+
+[data-layout="sidebar"][data-material="glass"] {
+  --app-motion-normal: 200ms;
+  --app-motion-slow: 290ms;
+}
+
+[data-layout="telegram"] {
+  --app-motion-normal: 200ms;
+  --app-motion-slow: 300ms;
+}
+
+[data-layout="sidebar"] {
+  --app-motion-fast: 120ms;
+  --app-motion-normal: 180ms;
+  --app-motion-slow: 250ms;
+}
+
+[data-layout="modal"] {
+  --app-motion-normal: 230ms;
+  --app-motion-slow: 330ms;
+}
+
+[data-layout="telegram"] {
+  --app-motion-normal: 200ms;
+  --app-motion-slow: 300ms;
+}
+
+[data-layout="sidebar"] {
+  --app-motion-fast: 120ms;
+  --app-motion-normal: 180ms;
+  --app-motion-slow: 250ms;
+}
+
+[data-layout="modal"] {
+  --app-motion-normal: 230ms;
+  --app-motion-slow: 330ms;
+}
+
+[data-layout="sidebar"][data-material="glass"] {
+  --app-motion-normal: 200ms;
+  --app-motion-slow: 290ms;
+}
+
+[data-layout="telegram"][data-material="m3"] {
+  --app-motion-fast: 110ms;
+  --app-motion-normal: 170ms;
+  --app-motion-slow: 240ms;
+}
+
+[data-layout="modal"][data-material="neumorphism"] {
+  --app-motion-normal: 250ms;
+  --app-motion-slow: 360ms;
+}
+
+[data-material="m3"] body {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--app-surface, #1f1b24) 94%, var(--m3-primary) 6%), color-mix(in srgb, var(--app-surface-2, #28242d) 96%, #000 4%));
+}
+
+[data-material="m3"] button,
+[data-material="m3"] [role="button"],
+[data-material="m3"] input,
+[data-material="m3"] textarea,
+[data-material="m3"] select {
+  border-radius: calc(var(--app-radius-sm) + 2px) !important;
+  border: 1px solid var(--m3-outline);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+}
+
+[data-material="m3"] button,
+[data-material="m3"] [role="button"] {
+  background: linear-gradient(180deg, var(--m3-surface-mid), var(--m3-surface-low));
+}
+
+[data-material="m3"] button:hover:not(:disabled),
+[data-material="m3"] [role="button"]:hover:not(:disabled) {
+  filter: brightness(1.01) saturate(1.04);
+  background: linear-gradient(180deg, var(--m3-surface-high), var(--m3-surface-mid));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 4px 10px rgba(0, 0, 0, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--m3-primary) 22%, transparent) inset;
+}
+
+[data-material="m3"] button:active:not(:disabled),
+[data-material="m3"] [role="button"]:active:not(:disabled) {
+  background: linear-gradient(180deg, var(--m3-state-press), var(--m3-surface-mid));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+[data-material="m3"] button[aria-pressed="true"],
+[data-material="m3"] [role="button"][aria-pressed="true"],
+[data-material="m3"] [role="tab"][aria-selected="true"] {
+  background: color-mix(in srgb, var(--m3-primary) 20%, var(--m3-surface-mid)) !important;
+  border-color: var(--m3-outline-strong) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 0 1px color-mix(in srgb, var(--m3-primary) 44%, transparent) inset !important;
+}
+
+[data-material="m3"] [role="tab"][aria-selected="true"],
+[data-material="m3"] button[aria-pressed="true"] {
+  filter: none !important;
+}
+
+[data-material="m3"] .app-menu-item {
+  border-radius: calc(var(--app-radius-md) + 2px) !important;
+}
+
+[data-material="m3"] .app-menu-item:active {
+  background: var(--m3-state-press) !important;
+}
+
+/* Layout-aware material expressions */
+[data-layout="telegram"][data-material="glass"] body {
+  background-image:
+    radial-gradient(circle at 50% -8%, color-mix(in srgb, var(--app-primary-glow, rgba(37, 99, 235, 0.36)) 60%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--app-surface, #101827) 70%, rgba(255, 255, 255, 0.1)), color-mix(in srgb, var(--app-surface-2, #0f172a) 88%, rgba(255, 255, 255, 0.03)));
+}
+
+[data-layout="telegram"][data-material="m3"] body {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--m3-primary, #6750a4) 8%, var(--app-surface, #1f1b24)), var(--app-surface-2, #28242d));
+}
+
+[data-layout="telegram"][data-material="m3"] button[aria-pressed="true"],
+[data-layout="telegram"][data-material="m3"] [role="tab"][aria-selected="true"] {
+  background: color-mix(in srgb, var(--m3-primary, #6750a4) 24%, transparent) !important;
+  border-color: color-mix(in srgb, var(--m3-primary, #6750a4) 56%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--m3-primary, #6750a4) 46%, transparent) inset !important;
+}
+
+[data-layout="sidebar"][data-material="glass"] .sidebar-focus-nav-icon {
+  border-color: color-mix(in srgb, var(--app-focus-color, #2563eb) 55%, rgba(255, 255, 255, 0.24));
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.03)),
+    color-mix(in srgb, var(--app-focus-color, #2563eb) 20%, rgba(0, 0, 0, 0.3));
+}
+
+[data-layout="sidebar"][data-material="neumorphism"] .sidebar-focus-nav-icon {
+  border-color: color-mix(in srgb, var(--app-border, #64748b) 84%, transparent);
+  box-shadow:
+    inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.25),
+    8px 8px 16px rgba(0, 0, 0, 0.22);
+}
+
+[data-layout="sidebar"][data-material="m3"] .sidebar-focus-nav-icon {
+  border-color: color-mix(in srgb, var(--m3-primary, #6750a4) 46%, transparent);
+  background: color-mix(in srgb, var(--m3-primary, #6750a4) 26%, rgba(0, 0, 0, 0.2));
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.24),
+    0 0 0 1px color-mix(in srgb, var(--m3-primary, #6750a4) 34%, transparent) inset;
+}
+
+[data-layout="modal"][data-material="m3"] .modal-enter,
+[data-layout="modal"][data-material="m3"] .modal-card-enter {
+  animation-duration: 0.22s;
+}
+
+[data-layout="modal"][data-material="glass"] .modal-enter,
+[data-layout="modal"][data-material="glass"] .modal-card-enter {
+  animation-duration: 0.3s;
+}
+
+[data-layout="modal"][data-material="neumorphism"] .modal-enter,
+[data-layout="modal"][data-material="neumorphism"] .modal-card-enter {
+  animation-timing-function: ease-out;
+}
+
+[data-material="m3"] input,
+[data-material="m3"] textarea,
+[data-material="m3"] select {
+  background: linear-gradient(180deg, var(--m3-surface-low), transparent);
+}
+
+[data-material="m3"] input::placeholder,
+[data-material="m3"] textarea::placeholder {
+  color: color-mix(in srgb, currentColor 56%, transparent);
+}
+
+[data-material="m3"] .app-menu {
+  background: linear-gradient(180deg, var(--m3-surface-high), var(--m3-surface-mid));
+  border: 1px solid var(--m3-outline);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.3),
+    0 0 0 1px color-mix(in srgb, var(--m3-primary) 20%, transparent) inset;
+}
+
+[data-material="m3"] .app-menu-item {
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+[data-material="m3"] .app-menu-item:hover {
+  background: var(--m3-state-hover) !important;
+  border-color: color-mix(in srgb, var(--m3-primary) 22%, transparent);
+}
+
+[data-material="m3"] [role="tablist"],
+[data-material="m3"] [class*="segment"],
+[data-material="m3"] [class*="segmented"] {
+  border-radius: calc(var(--app-radius-md) + 2px) !important;
+  border: 1px solid var(--m3-outline);
+  background: color-mix(in srgb, var(--m3-surface-mid) 70%, transparent);
+}
+
+[data-material="m3"] [class*="chip"],
+[data-material="m3"] [data-chip] {
+  border-radius: 999px !important;
+  border: 1px solid var(--m3-outline);
+  background: color-mix(in srgb, var(--m3-surface-mid) 60%, transparent);
+}
+
+/* Material 3 interactive controls */
+[data-material="m3"] input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--m3-outline);
+  background: color-mix(in srgb, var(--m3-primary) 18%, transparent);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+[data-material="m3"] input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-material="m3"] input[type="checkbox"]:checked {
+  background: var(--m3-primary);
+  border-color: var(--m3-primary);
+}
+
+[data-material="m3"] input[type="checkbox"]:checked::after {
+  transform: translateX(16px);
+}
+
+[data-material="m3"] input[type="radio"] {
+  accent-color: var(--m3-primary);
+}
+
+[data-material="m3"] .app-menu-item,
+[data-material="m3"] .shape-radius-sm,
+[data-material="m3"] .shape-radius-md,
+[data-material="m3"] .shape-radius-lg {
+  border-radius: calc(var(--app-radius-sm) + 2px) !important;
+}
+
+[data-theme="aureate"] button:not(:disabled) {
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.16);
+}
+
+:focus-visible {
+  outline: var(--app-focus-width, 2px) solid var(--app-focus-color, #2563eb);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--app-focus-halo, rgba(37, 99, 235, 0.4));
+  animation: focusHaloIn 0.2s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  transition:
+    outline-color 0.22s ease,
+    outline-offset 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+@keyframes focusHaloIn {
+  from {
+    outline-offset: 6px;
+    box-shadow: 0 0 0 0 var(--app-focus-halo, rgba(37, 99, 235, 0));
+  }
+  to {
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--app-focus-halo, rgba(37, 99, 235, 0.4));
+  }
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--app-focus-color, #2563eb) !important;
+  box-shadow:
+    0 0 0 1px var(--app-focus-color, #2563eb),
+    0 0 0 3px var(--app-focus-halo, rgba(37, 99, 235, 0.26)) !important;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #94a3b8;
+}
+
+/* ── iOS/Android: prevent auto-zoom on input focus ── */
+/* iOS Safari zooms when input font-size < 16px. This forces 16px minimum. */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Backdrop fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Tooltip pop-in above a centered element ── */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.85) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+/* ── Tooltip pop-in (non-centered, e.g. next to a button) ── */
+@keyframes fadeInScaleSimple {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Slide-up fade-out for toast notifications ── */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ── Dropdown menu smooth appear ── */
+@keyframes dropdownAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.dropdown-enter {
+  animation: dropdownAppear var(--app-motion-fast, 140ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.app-menu {
+  border-radius: var(--app-radius-lg) !important;
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+}
+
+.app-menu-item {
+  min-height: 42px;
+  border-radius: var(--app-radius-md) !important;
+  transition:
+    background-color var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    transform var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    color var(--app-motion-fast, 140ms) var(--app-ease-standard, ease);
+}
+
+.app-menu-item:hover {
+  transform: translateY(-0.5px);
+  background: color-mix(in srgb, currentColor 10%, transparent) !important;
+}
+
+.app-menu-item:active {
+  transform: translateY(0);
+}
+
+@keyframes tgHeaderTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tg-header-title {
+  animation: tgHeaderTitleIn var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.sidebar-focus-nav-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--app-radius-md);
+  border: 1px solid color-mix(in srgb, var(--app-focus-color, #2563eb) 38%, transparent);
+  background: color-mix(in srgb, var(--app-focus-color, #2563eb) 18%, rgba(0, 0, 0, 0.24));
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.24),
+    0 0 0 1px color-mix(in srgb, var(--app-focus-color, #2563eb) 18%, transparent);
+  animation: navIconFadeIn var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.sidebar-focus-nav-icon .line {
+  display: block;
+  width: 20px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-focus-text, #ffffff) 72%, #ffffff 28%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--app-focus-halo, rgba(37, 99, 235, 0.35)) 70%, transparent);
+}
+
+.sidebar-focus-nav-icon .line-1 {
+  animation: navLineOne 1.2s ease-in-out infinite;
+}
+
+.sidebar-focus-nav-icon .line-2 {
+  animation: navLineTwo 1.2s ease-in-out infinite;
+}
+
+.sidebar-focus-nav-icon .line-3 {
+  animation: navLineThree 1.2s ease-in-out infinite;
+}
+
+@keyframes navIconFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes navLineOne {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(1.5px);
+    opacity: 1;
+  }
+}
+
+@keyframes navLineTwo {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scaleX(0.86);
+    opacity: 1;
+  }
+}
+
+@keyframes navLineThree {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(-1.5px);
+    opacity: 1;
+  }
+}
+
+/* ── Tab content smooth height transition ── */
+@keyframes tabHeightIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.tab-height-enter {
+  animation: tabHeightIn var(--app-motion-normal, 220ms) var(--app-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.theme-tab-track {
+  transition:
+    background-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    border-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    box-shadow var(--app-motion-normal, 220ms) var(--app-ease-standard, ease);
+}
+
+.theme-tab-indicator {
+  will-change: left, background-color, box-shadow;
+}
+
+.tg-bottom-nav-btn {
+  transition:
+    background-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    color var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    box-shadow var(--app-motion-normal, 220ms) var(--app-ease-standard, ease),
+    transform var(--app-motion-fast, 140ms) var(--app-ease-standard, ease),
+    border-color var(--app-motion-normal, 220ms) var(--app-ease-standard, ease) !important;
+}
+
+.tg-bottom-nav-btn:hover:not(:disabled) {
+  transform: translateY(-1.5px) scale(1.01) !important;
+}
+
+[data-layout="telegram"][data-material="m3"] .tg-bottom-nav-btn:hover:not(:disabled) {
+  transform: translateY(-0.5px) scale(1.004) !important;
+}
+
+@keyframes bellRing {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-12deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-8deg); }
+  50% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  70% { transform: rotate(2deg); }
+  80% { transform: rotate(-1deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.bell-ring {
+  animation: bellRing 0.8s ease-in-out;
+  transform-origin: top center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MATERIAL-SPECIFIC COMPREHENSIVE UI STYLES
+   Each material transforms the entire app interface
+   ═══════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────
+   APPLE HIG (Human Interface Guidelines)
+   Characteristics: Fluid, translucent, layered, SF Pro feel
+   ────────────────────────────────────────────────────────── */
+
+[data-material="apple"] h1,
+[data-material="apple"] h2,
+[data-material="apple"] h3,
+[data-material="apple"] h4 {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+[data-material="apple"] h2 {
+  font-size: 20px !important;
+}
+
+[data-material="apple"] p,
+[data-material="apple"] span,
+[data-material="apple"] label,
+[data-material="apple"] input {
+  letter-spacing: -0.01em !important;
+}
+
+/* Close Button - iOS style */
+[data-material="apple"] button[title*="Close"],
+[data-material="apple"] button[aria-label*="Close"],
+[data-material="apple"] .close-btn,
+[data-material="apple"] button:has(svg) {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  background: rgba(120, 120, 128, 0.16) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 0.5px solid rgba(120, 120, 128, 0.2) !important;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+[data-material="apple"] button[title*="Close"]:hover,
+[data-material="apple"] button[aria-label*="Close"]:hover,
+[data-material="apple"] .close-btn:hover {
+  background: rgba(120, 120, 128, 0.24) !important;
+  transform: scale(0.95) !important;
+}
+
+[data-material="apple"] button[title*="Close"]:active,
+[data-material="apple"] button[aria-label*="Close"]:active {
+  background: rgba(120, 120, 128, 0.32) !important;
+  transform: scale(0.9) !important;
+}
+
+/* SVG Icons - SF Symbols style */
+[data-material="apple"] button svg,
+[data-material="apple"] svg {
+  stroke-width: 1.8 !important;
+  opacity: 0.92 !important;
+  filter: drop-shadow(0 0.5px 1px rgba(0,0,0,0.08)) !important;
+}
+
+/* Cards & Containers */
+[data-material="apple"] [style*="border-radius: 28"],
+[data-material="apple"] .app-shell {
+  border-radius: 20px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06) !important;
+}
+
+/* Modal Cards */
+[data-material="apple"] [style*="border-radius: 20"],
+[data-material="apple"] [style*="border-radius: 18"] {
+  border-radius: 16px !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+/* Input Fields */
+[data-material="apple"] input,
+[data-material="apple"] textarea {
+  border-radius: 10px !important;
+  border: 1px solid rgba(120, 120, 128, 0.4) !important;
+  background: var(--app-surface-2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+[data-material="apple"] input:focus,
+[data-material="apple"] textarea:focus {
+  border-color: var(--app-focus-color, #007AFF) !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15) !important;
+}
+
+/* Badges */
+[data-material="apple"] [style*="badge"],
+[data-material="apple"] .badge {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Scrollbar - macOS style */
+[data-material="apple"] ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-material="apple"] ::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.3) !important;
+  border-radius: 999px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+[data-material="apple"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 128, 0.5) !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   GLASSMORPHISM
+   Characteristics: Frosted, translucent, layered depth
+   ────────────────────────────────────────────────────────── */
+
+[data-material="glass"] h1,
+[data-material="glass"] h2,
+[data-material="glass"] h3 {
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+/* Close Button - Glass style */
+[data-material="glass"] button[title*="Close"],
+[data-material="glass"] button[aria-label*="Close"],
+[data-material="glass"] .close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08)) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  transition: all 0.3s cubic-bezier(0.2, 0.78, 0.18, 1) !important;
+}
+
+[data-material="glass"] button[title*="Close"]:hover,
+[data-material="glass"] button[aria-label*="Close"]:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.12)) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  transform: scale(1.02) !important;
+}
+
+[data-material="glass"] button[title*="Close"]:active,
+[data-material="glass"] button[aria-label*="Close"]:active {
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06)) !important;
+  transform: scale(0.98) !important;
+}
+
+/* SVG Icons - Vivid blur */
+[data-material="glass"] button svg,
+[data-material="glass"] svg {
+  stroke-width: 1.6 !important;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.15)) saturate(1.25) !important;
+  opacity: 0.95 !important;
+}
+
+/* Cards & Containers */
+[data-material="glass"] [style*="border-radius: 28"],
+[data-material="glass"] .app-shell {
+  border-radius: 24px !important;
+  backdrop-filter: blur(20px) saturate(165%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(165%) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+
+/* Modal Cards */
+[data-material="glass"] [style*="border-radius: 20"],
+[data-material="glass"] [style*="border-radius: 18"] {
+  border-radius: 20px !important;
+  backdrop-filter: blur(18px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+}
+
+/* Input Fields */
+[data-material="glass"] input,
+[data-material="glass"] textarea {
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  background: var(--app-surface-2) !important;
+  backdrop-filter: blur(10px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  transition: all 0.3s cubic-bezier(0.2, 0.78, 0.18, 1) !important;
+}
+
+[data-material="glass"] input:focus,
+[data-material="glass"] textarea:focus {
+  border-color: rgba(255,255,255,0.4) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+}
+
+/* Badges */
+[data-material="glass"] [style*="badge"],
+[data-material="glass"] .badge {
+  border-radius: 12px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   MATERIAL DESIGN 3 (Google)
+   Characteristics: Systematic, tonal, state layers, elevation
+   ────────────────────────────────────────────────────────── */
+
+[data-material="m3"] h1,
+[data-material="m3"] h2,
+[data-material="m3"] h3 {
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  font-family: "Google Sans", "Roboto", sans-serif !important;
+}
+
+[data-material="m3"] h2 {
+  font-size: 18px !important;
+}
+
+/* Close Button - M3 style */
+[data-material="m3"] button[title*="Close"],
+[data-material="m3"] button[aria-label*="Close"],
+[data-material="m3"] .close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 16px !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="m3"] button[title*="Close"]:hover,
+[data-material="m3"] button[aria-label*="Close"]:hover {
+  background: var(--m3-state-hover, rgba(103, 80, 164, 0.08)) !important;
+}
+
+[data-material="m3"] button[title*="Close"]:active,
+[data-material="m3"] button[aria-label*="Close"]:active {
+  background: var(--m3-state-press, rgba(103, 80, 164, 0.12)) !important;
+}
+
+/* SVG Icons - State layer */
+[data-material="m3"] button svg,
+[data-material="m3"] svg {
+  stroke-width: 2 !important;
+  opacity: 0.9 !important;
+  filter: none !important;
+}
+
+/* Cards & Containers */
+[data-material="m3"] [style*="border-radius: 28"],
+[data-material="m3"] .app-shell {
+  border-radius: 28px !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.44) !important;
+  border: none !important;
+}
+
+/* Modal Cards */
+[data-material="m3"] [style*="border-radius: 20"],
+[data-material="m3"] [style*="border-radius: 18"] {
+  border-radius: 24px !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+}
+
+/* Input Fields */
+[data-material="m3"] input,
+[data-material="m3"] textarea {
+  border-radius: 12px !important;
+  border: 1px solid var(--m3-outline, rgba(120, 120, 140, 0.7)) !important;
+  background: var(--app-surface-2) !important;
+  transition: all 0.15s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="m3"] input:focus,
+[data-material="m3"] textarea:focus {
+  border-color: var(--m3-primary, #6750a4) !important;
+  border-width: 2px !important;
+  background: var(--m3-surface-low, rgba(255,255,255,0.05)) !important;
+}
+
+/* Badges */
+[data-material="m3"] [style*="badge"],
+[data-material="m3"] .badge {
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Scrollbar - M3 style */
+[data-material="m3"] ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-material="m3"] ::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.4) !important;
+  border-radius: 999px !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   NEUMORPHISM
+   Characteristics: Soft, extruded, tactile, dual shadows
+   ────────────────────────────────────────────────────────── */
+
+[data-material="neumorphism"] h1,
+[data-material="neumorphism"] h2,
+[data-material="neumorphism"] h3 {
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2), -1px -1px 2px rgba(255,255,255,0.05) !important;
+}
+
+/* Close Button - Neumorphic */
+[data-material="neumorphism"] button[title*="Close"],
+[data-material="neumorphism"] button[aria-label*="Close"],
+[data-material="neumorphism"] .close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, var(--app-surface, #121826), var(--app-surface2, #0f172a)) !important;
+  border: none !important;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0,0,0,0.25),
+    inset -2px -2px 4px rgba(255,255,255,0.06),
+    0 0 0 1px rgba(255,255,255,0.05) !important;
+  transition: all 0.3s cubic-bezier(0.16, 0.92, 0.2, 1) !important;
+}
+
+[data-material="neumorphism"] button[title*="Close"]:hover,
+[data-material="neumorphism"] button[aria-label*="Close"]:hover {
+  box-shadow: 
+    inset 1px 1px 3px rgba(0,0,0,0.2),
+    inset -1px -1px 3px rgba(255,255,255,0.08),
+    4px 4px 10px rgba(0,0,0,0.25),
+    -4px -4px 10px rgba(255,255,255,0.06) !important;
+}
+
+[data-material="neumorphism"] button[title*="Close"]:active,
+[data-material="neumorphism"] button[aria-label*="Close"]:active {
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.3),
+    inset -3px -3px 6px rgba(255,255,255,0.05) !important;
+}
+
+/* SVG Icons - Shadow pop */
+[data-material="neumorphism"] button svg,
+[data-material="neumorphism"] svg {
+  stroke-width: 1.8 !important;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
+  opacity: 0.9 !important;
+}
+
+/* Cards & Containers */
+[data-material="neumorphism"] [style*="border-radius: 28"],
+[data-material="neumorphism"] .app-shell {
+  border-radius: 24px !important;
+  border: none !important;
+  box-shadow: 
+    8px 8px 16px rgba(0,0,0,0.35),
+    -8px -8px 16px rgba(255,255,255,0.06),
+    inset 1px 1px 2px rgba(255,255,255,0.08) !important;
+}
+
+/* Modal Cards */
+[data-material="neumorphism"] [style*="border-radius: 20"],
+[data-material="neumorphism"] [style*="border-radius: 18"] {
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 
+    6px 6px 12px rgba(0,0,0,0.3),
+    -6px -6px 12px rgba(255,255,255,0.05) !important;
+}
+
+/* Input Fields */
+[data-material="neumorphism"] input,
+[data-material="neumorphism"] textarea {
+  border-radius: 12px !important;
+  border: none !important;
+  background: var(--app-surface-2) !important;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0,0,0,0.25),
+    inset -2px -2px 4px rgba(255,255,255,0.06) !important;
+  transition: all 0.3s cubic-bezier(0.16, 0.92, 0.2, 1) !important;
+}
+
+[data-material="neumorphism"] input:focus,
+[data-material="neumorphism"] textarea:focus {
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.3),
+    inset -3px -3px 6px rgba(255,255,255,0.05),
+    0 0 0 2px var(--app-focus-color, #2563eb) !important;
+}
+
+/* Badges */
+[data-material="neumorphism"] [style*="badge"],
+[data-material="neumorphism"] .badge {
+  border-radius: 10px !important;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0,0,0,0.2),
+    inset -2px -2px 4px rgba(255,255,255,0.05) !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   SOLID (Default Functional)
+   Characteristics: Bold, high contrast, clean, efficient
+   ────────────────────────────────────────────────────────── */
+
+[data-material="solid"] h1,
+[data-material="solid"] h2,
+[data-material="solid"] h3 {
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Close Button - Solid style */
+[data-material="solid"] button[title*="Close"],
+[data-material="solid"] button[aria-label*="Close"],
+[data-material="solid"] .close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: var(--app-surface2, #1f2937) !important;
+  border: 1px solid var(--app-border, #64748b) !important;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="solid"] button[title*="Close"]:hover,
+[data-material="solid"] button[aria-label*="Close"]:hover {
+  background: var(--app-surface3, #374151) !important;
+  border-color: var(--app-border, #64748b) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+[data-material="solid"] button[title*="Close"]:active,
+[data-material="solid"] button[aria-label*="Close"]:active {
+  background: var(--app-surface, #111827) !important;
+  transform: scale(0.95) !important;
+}
+
+/* SVG Icons - Filled glyph */
+[data-material="solid"] button svg,
+[data-material="solid"] svg {
+  stroke-width: 2 !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Cards & Containers */
+[data-material="solid"] [style*="border-radius: 28"],
+[data-material="solid"] .app-shell {
+  border-radius: 24px !important;
+  border: 1px solid var(--app-border, #64748b) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+}
+
+/* Modal Cards */
+[data-material="solid"] [style*="border-radius: 20"],
+[data-material="solid"] [style*="border-radius: 18"] {
+  border-radius: 20px !important;
+  border: 1px solid var(--app-border, #64748b) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35) !important;
+}
+
+/* Input Fields */
+[data-material="solid"] input,
+[data-material="solid"] textarea {
+  border-radius: 10px !important;
+  border: 2px solid var(--app-border, #64748b) !important;
+  background: var(--app-surface-2) !important;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-material="solid"] input:focus,
+[data-material="solid"] textarea:focus {
+  border-color: var(--app-focus-color, #2563eb) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* Badges */
+[data-material="solid"] [style*="badge"],
+[data-material="solid"] .badge {
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+}
+
+/* Scrollbar - Solid style */
+[data-material="solid"] ::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+[data-material="solid"] ::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.4) !important;
+  border-radius: 999px !important;
+}
+
+/* ── Sidebar Search Magnifying Glass Animation ───────────────────────── */
+@keyframes magnifyOrbit {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(14px, -10px);
+  }
+  50% {
+    transform: translate(0, -20px);
+  }
+  75% {
+    transform: translate(-14px, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes magnifyTilt {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(4deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.sidebar-search-magnify-orbit {
+  animation: magnifyOrbit 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.sidebar-search-magnify-tilt {
+  animation: magnifyTilt 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

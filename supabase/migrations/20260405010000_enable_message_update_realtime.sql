@@ -1,0 +1,3 @@
+-- The publication approach didn't work due to version differences.
+-- The edit notification is handled via custom channel broadcast from the client side.
+-- See Chat.jsx for the implementation.

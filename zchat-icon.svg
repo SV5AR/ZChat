@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Tail drawn BEHIND bubble so left wall stays completely intact -->
+  <path d="M 105,428 C 70,458 20,492 6,512 C 35,478 155,436 210,428 Z"
+        fill="#16a34a"/>
+
+  <!-- Full ellipse bubble — completely unbroken left side -->
+  <path d="
+    M 145,38
+    L 367,38
+    Q 494,38 494,148
+    L 494,338
+    Q 494,434 367,434
+    L 145,434
+    Q 18,434 18,338
+    L 18,148
+    Q 18,38 145,38 Z
+  " fill="#16a34a" stroke="#4ade80" stroke-width="3.5" stroke-linejoin="round"/>
+
+  <!-- Z top bar -->
+  <path d="M 98,155 L 414,155"
+        fill="none" stroke="#f0fdf4" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Z bottom bar -->
+  <path d="M 98,308 L 414,308"
+        fill="none" stroke="#f0fdf4" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Three dots — top-right to bottom-left diagonal -->
+  <circle cx="362" cy="196" r="11" fill="#f0fdf4"/>
+  <circle cx="256" cy="232" r="11" fill="#f0fdf4"/>
+  <circle cx="150" cy="268" r="11" fill="#f0fdf4"/>
+
+  <!-- ZECURE wordmark -->
+  <text x="256" y="384" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-size="20" font-weight="700"
+        letter-spacing="8" fill="#dcfce7">ZECURE</text>
+
+</svg>
